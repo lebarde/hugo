@@ -73,6 +73,7 @@ func loadDefaultSettingsFor(v *viper.Viper) {
 	v.SetDefault("dataDir", "data")
 	v.SetDefault("i18nDir", "i18n")
 	v.SetDefault("themesDir", "themes")
+	v.SetDefault("widgetsDir", "widgets")
 	v.SetDefault("defaultLayout", "post")
 	v.SetDefault("buildDrafts", false)
 	v.SetDefault("buildFuture", false)

@@ -23,6 +23,7 @@ func (t *GoHTMLTemplate) EmbedShortcodes() {
 	t.AddInternalShortcode("relref.html", `{{ .Get 0 | relref .Page }}`)
 	t.AddInternalShortcode("highlight.html", `{{ if len .Params | eq 2 }}{{ highlight .Inner (.Get 0) (.Get 1) }}{{ else }}{{ highlight .Inner (.Get 0) "" }}{{ end }}`)
 	t.AddInternalShortcode("test.html", `This is a simple Test`)
+	t.AddInternalShortcode("widgets.html", `{{ widgets (.Get 0) $ }}`)
 	t.AddInternalShortcode("figure.html", `<!-- image -->
 <figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
     {{ with .Get "link"}}<a href="{{.}}">{{ end }}
@@ -141,6 +142,25 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
         {{ end }}
     </ul>
     {{ end }}`)
+
+	t.AddInternalTemplate("", "widgets.html", `{{- range .c.Site.Widgets -}}
+{{- if eq .Name $._wa -}}{{/* Display only the current widget area */}}
+<div class="widget-area widget-area-{{ .Name }}">
+  {{- $waname := .Name -}}
+  {{ range .Widgets -}}
+  <div class="widget widget-{{ .Type }}">
+    {{ $context := (dict "$" $.c "wa" $._wa "w" .Type "Params" .Params) }}
+    {{ partial (print .Type "/widget.html") "widgets" $context }}
+  </div>
+  {{- end }}{{/* end range widgets */}}
+</div>
+{{/* end if */}}{{- end -}}
+{{/* end range widget areas */}}{{- end -}}`)
+
+	t.AddInternalTemplate("widgets", "text/widget.html", `{{- if isset . "content" -}}
+  {{- .content | safeHTML -}}
+{{- else -}}<pre>Here is a text widget, but there is nothing to print. Please define options.content inside every text widget in your config.</pre>
+{{- end -}}`)
 
 	t.AddInternalTemplate("", "disqus.html", `{{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
 <script type="text/javascript">

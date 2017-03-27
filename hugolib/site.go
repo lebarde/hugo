@@ -96,6 +96,7 @@ type Site struct {
 	Sections       Taxonomy
 	Info           SiteInfo
 	Menus          Menus
+	Widgets        Widgets
 	timer          *nitro.B
 	targets        targetList
 	targetListInit sync.Once
@@ -236,6 +237,7 @@ type SiteInfo struct {
 	*PageCollections
 	Files                 *[]*source.File
 	Menus                 *Menus
+	Widgets               *Widgets
 	Hugo                  *HugoInfo
 	Title                 string
 	RSSLink               string
@@ -726,6 +728,36 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 
 }
 
+func (s *Site) loadTemplates() {
+	s.owner.tmpl = tpl.InitializeT()
+	s.owner.tmpl.LoadTemplates(s.absLayoutDir())
+	if s.hasTheme() {
+		s.owner.tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
+	}
+
+	// Here we handle the widgets. The site gets all HTML
+	// code to inject it inside the template, when the
+	// {{ widgets "mywidgetarea" }} is called.
+	if err := injectWidgets(s); err != nil {
+		jww.ERROR.Printf("Failed to load widgets: %s", err)
+	}
+
+}
+
+func (s *Site) prepTemplates(withTemplate func(templ tpl.Template) error) error {
+	s.loadTemplates()
+
+	if withTemplate != nil {
+		if err := withTemplate(s.owner.tmpl); err != nil {
+			return err
+		}
+	}
+
+	s.owner.tmpl.MarkReady()
+
+	return nil
+}
+
 func (s *Site) loadData(sources []source.Input) (err error) {
 	s.Log.DEBUG.Printf("Load Data from %d source(s)", len(sources))
 	s.Data = make(map[string]interface{})
@@ -988,6 +1020,8 @@ func (s *Site) initializeSiteInfo() {
 		Data:                           &s.Data,
 		owner:                          s.owner,
 		s:                              s,
+		pathSpec:                       helpers.NewPathSpecFromConfig(lang),
+		Widgets:                        &s.Widgets,
 	}
 
 	s.Info.RSSLink = s.Info.permalinkStr(lang.GetString("rssURI"))
@@ -1043,6 +1077,14 @@ func (s *Site) getThemeDataDir(path string) string {
 		return ""
 	}
 	return s.getRealDir(filepath.Join(s.PathSpec.GetThemeDir(), s.dataDir()), path)
+}
+
+func (s *Site) widgetDir() string {
+	return viper.GetString("widgetsDir")
+}
+
+func (s *Site) absWidgetDir() string {
+	return helpers.AbsPathify(s.widgetDir())
 }
 
 func (s *Site) layoutDir() string {
