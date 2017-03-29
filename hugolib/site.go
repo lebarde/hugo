@@ -728,34 +728,12 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 
 }
 
-func (s *Site) loadTemplates() {
-	s.owner.tmpl = tpl.InitializeT()
-	s.owner.tmpl.LoadTemplates(s.absLayoutDir())
-	if s.hasTheme() {
-		s.owner.tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
-	}
-
-	// Here we handle the widgets. The site gets all HTML
+func widgetsTODO() {// Here we handle the widgets. The site gets all HTML
 	// code to inject it inside the template, when the
 	// {{ widgets "mywidgetarea" }} is called.
-	if err := injectWidgets(s); err != nil {
+	/*if err := injectWidgets(); err != nil {
 		jww.ERROR.Printf("Failed to load widgets: %s", err)
-	}
-
-}
-
-func (s *Site) prepTemplates(withTemplate func(templ tpl.Template) error) error {
-	s.loadTemplates()
-
-	if withTemplate != nil {
-		if err := withTemplate(s.owner.tmpl); err != nil {
-			return err
-		}
-	}
-
-	s.owner.tmpl.MarkReady()
-
-	return nil
+	}*/
 }
 
 func (s *Site) loadData(sources []source.Input) (err error) {
@@ -1020,7 +998,6 @@ func (s *Site) initializeSiteInfo() {
 		Data:                           &s.Data,
 		owner:                          s.owner,
 		s:                              s,
-		pathSpec:                       helpers.NewPathSpecFromConfig(lang),
 		Widgets:                        &s.Widgets,
 	}
 
@@ -1080,11 +1057,15 @@ func (s *Site) getThemeDataDir(path string) string {
 }
 
 func (s *Site) widgetDir() string {
-	return viper.GetString("widgetsDir")
+	return s.Cfg.GetString("widgetsDir")
 }
 
-func (s *Site) absWidgetDir() string {
-	return helpers.AbsPathify(s.widgetDir())
+func (s *Site) getWidgetDir(path string) string {
+	return s.getRealDir(s.Cfg.GetString("widgetDir"), path)
+}
+
+func (s *Site) isWidgetDirEvent(e fsnotify.Event) bool {
+	return s.getWidgetDir(e.Name) != ""
 }
 
 func (s *Site) layoutDir() string {

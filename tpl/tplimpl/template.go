@@ -181,7 +181,7 @@ func (t *GoHTMLTemplate) Partial(name string, contextList ...interface{}) templa
 	}
 
 	prefix += "/"
-	return ExecuteTemplateToHTML(context, prefix+name, "theme/"+prefix+name)
+	return t.ExecuteTemplateToHTML(context, prefix+name, "theme/"+prefix+name)
 }
 
 func (t *GoHTMLTemplate) executeTemplate(context interface{}, w io.Writer, layouts ...string) {

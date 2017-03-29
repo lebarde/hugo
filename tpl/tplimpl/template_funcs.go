@@ -2089,15 +2089,16 @@ func getenv(key interface{}) (string, error) {
 	return os.Getenv(skey), nil
 }
 
-func widgets(name string, context interface{}) template.HTML {
+// Retrieves and display a widget area using the /widgets/ shortcode
+func (t *templateFuncster) widgets(name string, context interface{}) template.HTML {
 	// Add (_wa: name) index/value to context to access it inside
-	// the embedded template
+	// the embedded template (as Widget Area)
 	outcontext := make(map[string]interface{})
 	outcontext["c"] = context
 	outcontext["_wa"] = name
 
 	// See in template_embedded for widgets.html
-	return ExecuteTemplateToHTML(outcontext, "_internal/widgets.html")
+	return t.Tmpl.ExecuteTemplateToHTML(outcontext, "_internal/widgets.html")
 }
 
 func (t *templateFuncster) initFuncMap() {
@@ -2204,7 +2205,7 @@ func (t *templateFuncster) initFuncMap() {
 		"where":        where,
 		"i18n":         t.Translate,
 		"T":            t.Translate,
-		"widgets":      widgets,
+		"widgets":      t.widgets,
 	}
 
 	t.funcMap = funcMap
