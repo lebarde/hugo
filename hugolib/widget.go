@@ -14,10 +14,11 @@
 package hugolib
 
 import (
-	"github.com/spf13/cast"
 	"html/template"
 
-	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/cast"
+
+	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
 )
 
@@ -59,7 +60,7 @@ type Widgets map[string]*WidgetArea
 
 // WidgetsConfig parses the widgets config variable
 // (is a collection) and calls every widget configuration.
-func getWidgetsFromConfig() Widgets {
+func (s *Site) getWidgetsFromConfig() Widgets {
 	ret := Widgets{}
 
 	// TODO do it as in hugolib/site.go with Cfg thing
@@ -68,8 +69,8 @@ func getWidgetsFromConfig() Widgets {
 			// wa is a widget area defined in the conf file
 			wa, err := cast.ToSliceE(widgetarea)
 			if err != nil {
-				jww.ERROR.Printf("unable to process widgets in site config\n")
-				jww.ERROR.Println(err)
+				s.Log.ERROR.Printf("unable to process widgets in site config\n")
+				s.Log.ERROR.Println(err)
 			}
 
 			// Instantiate a WidgetArea
@@ -80,8 +81,8 @@ func getWidgetsFromConfig() Widgets {
 				iw, err := cast.ToStringMapE(w)
 
 				if err != nil {
-					jww.ERROR.Printf("unable to process widget inside widget area in site config\n")
-					jww.ERROR.Println(err)
+					s.Log.ERROR.Printf("unable to process widget inside widget area in site config\n")
+					s.Log.ERROR.Println(err)
 				}
 
 				// iw represents a widget inside a widget area
@@ -90,8 +91,8 @@ func getWidgetsFromConfig() Widgets {
 				wobj, err := newWidget(wtype, woptions)
 
 				if err != nil {
-					jww.ERROR.Printf("unable to instantiate widget: %s\n", iw)
-					jww.ERROR.Println(err)
+					s.Log.ERROR.Printf("unable to instantiate widget: %s\n", iw)
+					s.Log.ERROR.Println(err)
 				}
 
 				// then append it to the widget area object
@@ -109,10 +110,10 @@ func getWidgetsFromConfig() Widgets {
 
 // instantiateWidget retrieves the widget's files
 // and creates the templates
-func instantiateWidget(s *Site, wa *WidgetArea, w *Widget) *Widget {
+func (s *Site) instantiateWidget(temp tpl.Template, wa *WidgetArea, w *Widget) *Widget {
 	// Load this widget's templates
 	// using the site object's owner.tmpl
-	s.owner.tmpl.LoadTemplatesWithPrefix(s.absWidgetDir()+"/"+w.Type+"/layouts", "widgets/"+w.Type)
+	temp.LoadTemplatesWithPrefix(s.getWidgetDir("widgets")+"/"+w.Type+"/layouts", "widgets/"+w.Type)
 
 	return w
 }
@@ -123,16 +124,16 @@ func instantiateWidget(s *Site, wa *WidgetArea, w *Widget) *Widget {
 // This function adds the whole widgets' template code
 // in the Site object. This is of type template.HTML.
 // This function is called from hugo_sites.
-func injectWidgets(s *Site) error {
+func (s *Site) injectWidgets(temp tpl.Template) error {
 	// Get widgets. This gives all information we need but
 	// does not already read widget files.
-	widgets := getWidgetsFromConfig()
+	widgets := s.getWidgetsFromConfig()
 
 	for _, widgetarea := range widgets {
 		// _ is waname, if ever we need
 
 		for _, w := range widgetarea.Widgets {
-			w = instantiateWidget(s, widgetarea, w)
+			w = s.instantiateWidget(temp, widgetarea, w)
 		}
 	}
 

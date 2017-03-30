@@ -137,6 +137,13 @@ func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.Template) error
 			}
 		}
 
+		// Here we handle the widgets. The site gets all HTML
+		// code to inject it inside the template, when the
+		// {{ widgets "mywidgetarea" }} is called.
+		if err := s.injectWidgets(templ); err != nil {
+			s.Log.ERROR.Printf("Failed to load widgets: %s", err)
+		}
+
 		return nil
 	}
 }

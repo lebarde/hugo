@@ -728,14 +728,6 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 
 }
 
-func widgetsTODO() {// Here we handle the widgets. The site gets all HTML
-	// code to inject it inside the template, when the
-	// {{ widgets "mywidgetarea" }} is called.
-	/*if err := injectWidgets(); err != nil {
-		jww.ERROR.Printf("Failed to load widgets: %s", err)
-	}*/
-}
-
 func (s *Site) loadData(sources []source.Input) (err error) {
 	s.Log.DEBUG.Printf("Load Data from %d source(s)", len(sources))
 	s.Data = make(map[string]interface{})
