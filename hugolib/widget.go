@@ -62,6 +62,7 @@ type Widgets map[string]*WidgetArea
 func getWidgetsFromConfig() Widgets {
 	ret := Widgets{}
 
+	// TODO do it as in hugolib/site.go with Cfg thing
 	if conf := viper.GetStringMap("widgets"); conf != nil {
 		for waname, widgetarea := range conf {
 			// wa is a widget area defined in the conf file
