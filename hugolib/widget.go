@@ -15,11 +15,8 @@ package hugolib
 
 import (
 	"html/template"
-
 	"github.com/spf13/cast"
-
 	"github.com/spf13/hugo/tpl"
-	"github.com/spf13/viper"
 )
 
 // TODO See the shortcode system to see the structure
@@ -62,9 +59,8 @@ type Widgets map[string]*WidgetArea
 // (is a collection) and calls every widget configuration.
 func (s *Site) getWidgetsFromConfig() Widgets {
 	ret := Widgets{}
-
 	// TODO do it as in hugolib/site.go with Cfg thing
-	if conf := viper.GetStringMap("widgets"); conf != nil {
+	if conf := s.Cfg.GetStringMap("widgets"); conf != nil {
 		for waname, widgetarea := range conf {
 			// wa is a widget area defined in the conf file
 			wa, err := cast.ToSliceE(widgetarea)
