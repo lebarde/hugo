@@ -191,13 +191,19 @@ func (t *GoHTMLTemplate) executeTemplate(context interface{}, w io.Writer, layou
 		if templ == nil {
 			layout += ".html"
 			templ = t.Lookup(layout)
+			//t.Log.ERROR.Printf("TODO1 "+layout)
+
 		}
 
 		if templ != nil {
+			//t.Log.ERROR.Printf("TODO2 "+layout)
 			if err := templ.Execute(w, context); err != nil {
 				helpers.DistinctErrorLog.Println(layout, err)
+				//t.Log.ERROR.Printf("TODO3 "+layout)
 			}
 			worked = true
+			//t.Log.ERROR.Printf("TODO4 "+layout)
+
 			break
 		}
 	}
