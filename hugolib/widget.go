@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"html/template"
+
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/tpl"
 )
@@ -109,7 +110,8 @@ func (s *Site) getWidgetsFromConfig() Widgets {
 func (s *Site) instantiateWidget(temp tpl.Template, wa *WidgetArea, w *Widget) *Widget {
 	// Load this widget's templates
 	// using the site object's owner.tmpl
-	temp.LoadTemplatesWithPrefix(s.getWidgetDir("widgets")+"/"+w.Type+"/layouts", "widgets/"+w.Type)
+	//temp.LoadTemplatesWithPrefix(s.getWidgetDir("widgets")+"/"+w.Type+"/layouts", "widgets/"+w.Type)
+	temp.LoadTemplatesWithPrefix("widgets/"+w.Type+"/layouts", "widgets/"+w.Type)
 
 	return w
 }

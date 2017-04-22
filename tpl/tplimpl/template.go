@@ -221,7 +221,7 @@ func (t *GoHTMLTemplate) ExecuteTemplateToHTML(context interface{}, layouts ...s
 }
 
 func (t *GoHTMLTemplate) Lookup(name string) *template.Template {
-
+	//t.Log.ERROR.Println("Name: " + name)
 	if templ := t.Template.Lookup(name); templ != nil {
 		return templ
 	}
